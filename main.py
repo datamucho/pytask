@@ -1,43 +1,37 @@
 import pygame
-import sys
 
+# initialize pygame and screen
 pygame.init()
+screen = pygame.display.set_mode((1200, 400))
 
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Simple Pygame Game")
+# load the image and convert to numpy array
+        
+class GrayScaleTransformer():
+    def __init__(self, image_file):
+        self.image_file = image_file
+        self.img = None
+        self.arr = None
+    
+    def load_image(self):
+        self.img = pygame.image.load(self.image_file).convert_alpha()
+        self.arr = pygame.surfarray.array3d(self.img)
+        print(self.arr.shape)
+    
+    def transform(self):
+        for i in range(self.arr.shape[0]):
+            for j in range(self.arr.shape[1]):
+                r, g, b = self.arr[i][j]
+                avg = r/3  + g/3  + b/3
+                self.arr[i][j] = [avg, avg, avg]
+    def save_image(self, image_file):
+        surface = pygame.surfarray.make_surface(self.arr)
+        pygame.image.save(surface, image_file) 
 
-white = (255, 255, 255)
-blue = (0, 0, 255)
+image_file = "data/test_cut.png"
+transformer = GrayScaleTransformer(image_file)
 
-player_size = 50
-player_x, player_y = width // 2, height // 2
+transformer.load_image()
+transformer.transform()
+transformer.save_image("data/test_gray.png")
 
-clock = pygame.time.Clock()
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player_x > 0:
-        player_x -= 5
-    if keys[pygame.K_RIGHT] and player_x < width - player_size:
-        player_x += 5
-    if keys[pygame.K_UP] and player_y > 0:
-        player_y -= 5
-    if keys[pygame.K_DOWN] and player_y < height - player_size:
-        player_y += 5
-
-    screen.fill(white)
-
-    pygame.draw.rect(screen, blue, (player_x, player_y, player_size, player_size))
-
-    pygame.display.flip()
-
-    clock.tick(30)
-
-pygame.quit()
-sys.exit()
